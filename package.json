@@ -1,0 +1,32 @@
+{
+  "name": "netquest",
+  "version": "1.0.0",
+  "description": "NetQuest — game edukasi belajar konfigurasi Cisco IOS via CLI dengan simulator jaringan, topologi visual, dan quest dari NPC",
+  "type": "module",
+  "main": "src/server/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch src/server/index.js",
+    "start": "node src/server/index.js",
+    "test": "node test/smoke.js"
+  },
+  "keywords": [
+    "cisco",
+    "ios",
+    "ccna",
+    "cli",
+    "simulator",
+    "educational-game",
+    "network"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "express": "^4.21.2",
+    "vis-network": "^9.1.9",
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,387 @@
+/* NetQuest — tema dark "hacker": hitam kehijauan, aksen hijau neon & cyan.
+   Layout: desktop = topologi|terminal bersebelahan; mobile (<=900px) = tab bar bawah. */
+
+:root {
+  --bg: #050a08;
+  --bg-panel: #0a1410;
+  --bg-panel-2: #0d1a14;
+  --border: #173826;
+  --border-bright: #1f5c3a;
+  --green: #00ff9c;
+  --green-dim: #0f8f5f;
+  --cyan: #22d3ee;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --text: #c9e8d8;
+  --text-dim: #6b8f7d;
+  --mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Menlo, Consolas, "Courier New", monospace;
+  --tabbar-h: 58px;
+  --topbar-h: 46px;
+  --mobile-break: 900px;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- top bar ---------- */
+#topbar {
+  height: var(--topbar-h);
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, #0b1712, #081009);
+  border-bottom: 1px solid var(--border-bright);
+}
+.brand { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.logo {
+  color: var(--bg);
+  background: var(--green);
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+.name { color: var(--green); font-weight: 700; font-size: 16px; letter-spacing: 1px; }
+.tagline { color: var(--text-dim); font-size: 11px; }
+.status { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; }
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-bright);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.badge-xp { color: var(--amber); border-color: #4d3a10; background: #171102; }
+#lab-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-family: var(--mono, monospace);
+  color: #7dd3fc;
+  border: 1px solid #155e75;
+  background: #062a35;
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.badge-on { color: var(--green); }
+.badge-off { color: var(--red); }
+
+.btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-bright);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { background: #10291c; color: var(--green); }
+.btn-ghost { background: transparent; }
+
+/* ---------- layout desktop ---------- */
+#layout {
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+.tab-panel { min-width: 0; min-height: 0; }
+#topo-panel {
+  flex: 1.15 1 0;
+  min-width: 380px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  position: relative;
+  background:
+    linear-gradient(rgba(0, 255, 156, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 156, 0.028) 1px, transparent 1px),
+    radial-gradient(circle at 30% 20%, rgba(0, 255, 156, 0.04), transparent 40%),
+    radial-gradient(circle at 75% 70%, rgba(34, 211, 238, 0.04), transparent 45%);
+  background-size: 28px 28px, 28px 28px, auto, auto;
+}
+#term-panel {
+  flex: 1 1 0;
+  min-width: 380px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.panel-header {
+  flex: 0 0 auto;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+.panel-header .spacer { flex: 1 1 auto; }
+.panel-title { color: var(--green-dim); font-size: 11px; letter-spacing: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#term-device { color: var(--cyan); letter-spacing: 0; text-transform: none; }
+.panel-hint { color: var(--text-dim); font-size: 10px; }
+.term-device-icon { height: 20px; width: auto; flex: 0 0 auto; }
+
+#network { flex: 1 1 auto; min-height: 0; }
+#legend {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  font-size: 10px;
+  color: var(--text-dim);
+  background: rgba(5, 10, 8, 0.82);
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  max-width: calc(100% - 20px);
+}
+.legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.legend-item img { height: 16px; width: auto; display: block; }
+.line { width: 16px; height: 2px; display: inline-block; }
+.line-up { background: var(--green); }
+.line-down { background: var(--red); }
+
+/* ---------- terminal ---------- */
+#terminal { flex: 1 1 auto; min-height: 0; padding: 6px 8px; }
+#term-help {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  font-size: 10px;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+#term-help b { color: var(--green); }
+#term-panel.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  border: none;
+}
+
+.xterm .xterm-viewport { background: transparent !important; }
+
+/* tombol cepat — tampil di layar kecil (bantu mengetik di ponsel) */
+#quickkeys {
+  display: none;
+  flex: 0 0 auto;
+  gap: 6px;
+  padding: 6px 8px;
+  overflow-x: auto;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel-2);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+#quickkeys::-webkit-scrollbar { display: none; }
+#quickkeys button {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  background: #0f2418;
+  border: 1px solid var(--border-bright);
+  border-radius: 6px;
+  padding: 8px 12px;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+#quickkeys button:active { background: #16402a; color: var(--green); }
+
+/* ---------- quest panel ---------- */
+/* Desktop: drawer overlay kanan-atas (toggle tombol "Quests").
+   Mobile: dijadikan tab penuh via media query di bawah. */
+#quest-panel {
+  position: fixed;
+  top: 54px;
+  right: 12px;
+  width: 380px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 90px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 20, 16, 0.96);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  z-index: 50;
+  overflow: hidden;
+}
+#quest-panel.collapsed { display: none; }
+
+.quest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel-2);
+}
+.quest-list { overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+
+.quest-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--bg-panel);
+}
+.quest-card.completed { border-color: var(--green-dim); background: rgba(0, 255, 156, 0.04); }
+.quest-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.quest-title { color: var(--cyan); font-weight: 700; font-size: 12px; }
+.quest-xp { color: var(--amber); font-size: 10px; white-space: nowrap; }
+.quest-npc { color: var(--text-dim); font-size: 10px; margin-top: 2px; }
+.quest-dialog {
+  color: var(--text);
+  font-size: 11px;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 8px 0;
+  border-left: 2px solid var(--border-bright);
+  padding-left: 8px;
+}
+.quest-objectives { list-style: none; margin: 0; padding: 0; }
+.quest-objectives li {
+  font-size: 11px;
+  padding: 2px 0;
+  color: var(--text-dim);
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+.quest-objectives li.done { color: var(--green); }
+.quest-objectives li .mark { flex: 0 0 auto; }
+.quest-card.completed .quest-title { color: var(--green); }
+
+/* ---------- toast ---------- */
+#toast-container {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 70;
+  align-items: center;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+}
+.toast {
+  background: #06120c;
+  border: 1px solid var(--green);
+  color: var(--green);
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 12px;
+  box-shadow: 0 0 24px rgba(0, 255, 156, 0.25);
+  animation: toast-in 0.25s ease-out;
+  text-align: center;
+}
+.toast.warn { border-color: var(--amber); color: var(--amber); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- tab bar mobile (default: tersembunyi di desktop) ---------- */
+#tabbar {
+  display: none;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #143024; border-radius: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* =========================================================
+   MOBILE (<= 900px): panel jadi tab, tab bar fixed di bawah
+   ========================================================= */
+@media (max-width: 900px) {
+  #topbar { padding: 0 10px; height: 50px; }
+  .tagline { display: none; }
+  #btn-quest-toggle { display: none; }        /* quest diakses via tab */
+  .badge { font-size: 10px; padding: 3px 8px; }
+  .btn { min-height: 38px; min-width: 38px; padding: 8px 10px; }
+  #btn-reset { font-size: 0; padding: 8px 10px; }
+  #btn-reset::after { content: "↺"; font-size: 14px; }
+
+  #layout { flex-direction: column; }
+  #topo-panel { border-right: none; border-bottom: 1px solid var(--border); min-width: 0; }
+  #term-panel { min-width: 0; }
+
+  /* hanya panel aktif yang tampil; lainnya disembunyikan */
+  .tab-panel { display: none !important; flex: 1 1 auto; }
+  .tab-panel.is-active { display: flex !important; }
+
+  /* quest panel: di mobile jadi panel penuh (bukan overlay) */
+  #quest-panel.collapsed { display: none !important; }
+  #quest-panel { position: static !important; width: auto !important; max-height: none !important; border: none !important; box-shadow: none !important; }
+  #quest-panel .quest-list { flex: 1 1 auto; }
+
+  #tabbar {
+    display: flex;
+    flex: 0 0 auto;
+    height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: linear-gradient(180deg, #0b1712, #081009);
+    border-top: 1px solid var(--border-bright);
+    z-index: 40;
+  }
+  .tab-btn {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 10px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .tab-btn.active { color: var(--green); }
+  .tab-btn b { font-weight: 400; opacity: 0.9; }
+  .tab-btn svg { display: block; }
+
+  #quickkeys { display: flex; }
+  #term-help { font-size: 9px; }
+  #legend { font-size: 9px; bottom: 6px; }
+
+  .panel-hint { display: none; }
+  #btn-term-fullscreen { display: none; }      /* layar sudah penuh per-tab */
+  .panel-header { height: 40px; }
+
+  #toast-container { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 12px); }
+}
+
+/* sangat sempit (ponsel kecil) */
+@media (max-width: 420px) {
+  .name { font-size: 14px; }
+  #xp-badge { display: none; }               /* XP tetap terlihat di tab Quest */
+}

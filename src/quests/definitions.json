@@ -1,0 +1,707 @@
+{
+  "meta": {
+    "description": "Definisi quest NetQuest (16 quest). 'initial' adalah kondisi_awal yang disuntikkan ke world saat boot (termasuk sabotase route/ACL utk troubleshooting); 'objectives' diverifikasi otomatis setiap pemain menjalankan perintah."
+  },
+  "quests": [
+    {
+      "id": "quest-1",
+      "title": "Sinyal Hilang ke Router-2",
+      "xp": 100,
+      "npc": {
+        "name": "Bu Sari",
+        "role": "Staf Administrasi"
+      },
+      "dialog": "\"Komputer saya (PC-1) tidak bisa ping ke Router-2 (10.0.0.2) sama sekali. Padahal kemarin masih bisa. Katanya ada interface WAN yang mati — tolong dicek ya. Dan jangan lupa pikirkan jalur baliknya!\"",
+      "initial": [
+        {
+          "device": "r1",
+          "interface": {
+            "name": "GigabitEthernet0/1",
+            "adminUp": false
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "1a",
+          "type": "interface",
+          "device": "r1",
+          "interface": "GigabitEthernet0/1",
+          "expect": {
+            "adminUp": true,
+            "operUp": true,
+            "ip": "10.0.0.1",
+            "mask": "255.255.255.252"
+          },
+          "text": "Interface Gi0/1 di R1 aktif (up/up) dengan IP 10.0.0.1/30"
+        },
+        {
+          "id": "1b",
+          "type": "route",
+          "device": "r2",
+          "expect": {
+            "network": "192.168.1.0",
+            "mask": "255.255.255.0",
+            "nextHop": "10.0.0.1"
+          },
+          "text": "R2 punya rute balik ke 192.168.1.0/24 via 10.0.0.1"
+        },
+        {
+          "id": "1c",
+          "type": "ping",
+          "from": "pc1",
+          "to": "10.0.0.2",
+          "text": "Dari PC-1, ping 10.0.0.2 sukses (success rate 100%)"
+        }
+      ]
+    },
+    {
+      "id": "quest-2",
+      "title": "Kantor Cabang Terisolasi",
+      "xp": 150,
+      "npc": {
+        "name": "Pak Budi",
+        "role": "Manajer Kantor Cabang"
+      },
+      "dialog": "\"PC di cabang (PC-2, alamat 192.168.2.10) tidak bisa dihubungi sama sekali dari pusat. Dua router kita rupanya belum saling mengenal jaringannya. Lengkapi routing statis di kedua router sampai ping dari PC-1 ke PC-2 berhasil.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "2a",
+          "type": "route",
+          "device": "r1",
+          "expect": {
+            "network": "192.168.2.0",
+            "mask": "255.255.255.0",
+            "nextHop": "10.0.0.2"
+          },
+          "text": "R1 punya rute ke 192.168.2.0/24 via 10.0.0.2"
+        },
+        {
+          "id": "2b",
+          "type": "route",
+          "device": "r2",
+          "expect": {
+            "network": "192.168.1.0",
+            "mask": "255.255.255.0",
+            "nextHop": "10.0.0.1"
+          },
+          "text": "R2 punya rute balik ke 192.168.1.0/24 via 10.0.0.1"
+        },
+        {
+          "id": "2c",
+          "type": "ping",
+          "from": "pc1",
+          "to": "192.168.2.10",
+          "text": "Dari PC-1, ping PC-2 (192.168.2.10) sukses"
+        }
+      ]
+    },
+    {
+      "id": "quest-3",
+      "title": "Gateway Gudang Salah Alamat",
+      "xp": 150,
+      "npc": {
+        "name": "Rina",
+        "role": "Kepala Gudang Cabang"
+      },
+      "dialog": "\"Semua perangkat di gudang tidak bisa keluar jaringan — padahal kabel dan switch aman. Aku dengar kemarin ada yang iseng mengganti alamat gateway di router cabang. Tolong kembalikan interface LAN R2 ke 192.168.2.1/24.\"",
+      "initial": [
+        {
+          "device": "r2",
+          "interface": {
+            "name": "GigabitEthernet0/1",
+            "ip": "192.168.3.1",
+            "mask": "255.255.255.0",
+            "adminUp": true
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "3a",
+          "type": "interface",
+          "device": "r2",
+          "interface": "GigabitEthernet0/1",
+          "expect": {
+            "adminUp": true,
+            "operUp": true,
+            "ip": "192.168.2.1",
+            "mask": "255.255.255.0"
+          },
+          "text": "R2 Gi0/1 dikembalikan ke 192.168.2.1/24 dan aktif (up/up)"
+        },
+        {
+          "id": "3b",
+          "type": "ping",
+          "from": "pc2",
+          "to": "192.168.2.1",
+          "text": "Dari PC-2, ping gateway 192.168.2.1 sukses"
+        }
+      ]
+    },
+    {
+      "id": "quest-4",
+      "title": "Routing Dinamis: RIP v2",
+      "xp": 200,
+      "npc": {
+        "name": "Pak Hendra",
+        "role": "Network Engineer Pusat"
+      },
+      "dialog": "\"Menambah rute statis satu per satu melelahkan. Aktifkan RIP versi 2 di R1 dan R2 untuk semua jaringan kita — nanti setiap LAN baru otomatis dikenal. Bukti keberhasilannya: PC-1 harus bisa ping PC-2.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "4a",
+          "type": "protocol",
+          "device": "r1",
+          "proto": "rip",
+          "network": "192.168.1.0",
+          "text": "R1: RIP aktif (version 2) dan mengadvertise 192.168.1.0"
+        },
+        {
+          "id": "4b",
+          "type": "protocol",
+          "device": "r1",
+          "proto": "rip",
+          "network": "10.0.0.0",
+          "text": "R1: RIP mengadvertise jaringan WAN 10.0.0.0"
+        },
+        {
+          "id": "4c",
+          "type": "protocol",
+          "device": "r2",
+          "proto": "rip",
+          "network": "192.168.2.0",
+          "text": "R2: RIP aktif dan mengadvertise 192.168.2.0"
+        },
+        {
+          "id": "4d",
+          "type": "protocol",
+          "device": "r2",
+          "proto": "rip",
+          "network": "10.0.0.0",
+          "text": "R2: RIP mengadvertise jaringan WAN 10.0.0.0"
+        },
+        {
+          "id": "4e",
+          "type": "ping",
+          "from": "pc1",
+          "to": "192.168.2.10",
+          "text": "Dari PC-1, ping PC-2 sukses lewat jalur RIP"
+        }
+      ]
+    },
+    {
+      "id": "quest-5",
+      "title": "Upgrade ke OSPF Area 0",
+      "xp": 200,
+      "npc": {
+        "name": "Bu Maya",
+        "role": "Arsitek Jaringan"
+      },
+      "dialog": "\"RIP terlalu lambat untuk jaringan yang terus tumbuh. Migrasikan ke OSPF single-area (area 0) di kedua router dengan wildcard 0.0.0.0 pada jaringan LAN. Setelah konvergen, ping antar PC harus tetap sukses.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "5a",
+          "type": "protocol",
+          "device": "r1",
+          "proto": "ospf",
+          "pid": 1,
+          "network": "192.168.1.0",
+          "area": 0,
+          "text": "R1: OSPF process 1 mengadvertise 192.168.1.0 area 0"
+        },
+        {
+          "id": "5b",
+          "type": "protocol",
+          "device": "r1",
+          "proto": "ospf",
+          "pid": 1,
+          "network": "10.0.0.0",
+          "area": 0,
+          "text": "R1: OSPF mengadvertise 10.0.0.0 area 0"
+        },
+        {
+          "id": "5c",
+          "type": "protocol",
+          "device": "r2",
+          "proto": "ospf",
+          "pid": 1,
+          "network": "192.168.2.0",
+          "area": 0,
+          "text": "R2: OSPF process 1 mengadvertise 192.168.2.0 area 0"
+        },
+        {
+          "id": "5d",
+          "type": "protocol",
+          "device": "r2",
+          "proto": "ospf",
+          "pid": 1,
+          "network": "10.0.0.0",
+          "area": 0,
+          "text": "R2: OSPF mengadvertise 10.0.0.0 area 0"
+        },
+        {
+          "id": "5e",
+          "type": "ping",
+          "from": "pc1",
+          "to": "192.168.2.10",
+          "text": "Dari PC-1, ping PC-2 sukses lewat jalur OSPF"
+        }
+      ]
+    },
+    {
+      "id": "quest-6",
+      "title": "Eksperimen EIGRP AS 100",
+      "xp": 200,
+      "npc": {
+        "name": "Rizky",
+        "role": "Junior Network Admin"
+      },
+      "dialog": "\"Kata dokumentasi, EIGRP konvergensi paling cepat. Coba nyalakan EIGRP autonomous-system 100 di kedua router untuk semua jaringan, lalu bandingkan show ip route. Ping PC-1 ke PC-2 harus tetap jalan.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "6a",
+          "type": "protocol",
+          "device": "r1",
+          "proto": "eigrp",
+          "as": 100,
+          "network": "192.168.1.0",
+          "text": "R1: EIGRP AS 100 mengadvertise 192.168.1.0"
+        },
+        {
+          "id": "6b",
+          "type": "protocol",
+          "device": "r1",
+          "proto": "eigrp",
+          "as": 100,
+          "network": "10.0.0.0",
+          "text": "R1: EIGRP AS 100 mengadvertise 10.0.0.0"
+        },
+        {
+          "id": "6c",
+          "type": "protocol",
+          "device": "r2",
+          "proto": "eigrp",
+          "as": 100,
+          "network": "192.168.2.0",
+          "text": "R2: EIGRP AS 100 mengadvertise 192.168.2.0"
+        },
+        {
+          "id": "6d",
+          "type": "protocol",
+          "device": "r2",
+          "proto": "eigrp",
+          "as": 100,
+          "network": "10.0.0.0",
+          "text": "R2: EIGRP AS 100 mengadvertise 10.0.0.0"
+        },
+        {
+          "id": "6e",
+          "type": "ping",
+          "from": "pc1",
+          "to": "192.168.2.10",
+          "text": "Dari PC-1, ping PC-2 sukses lewat jalur EIGRP"
+        }
+      ]
+    },
+    {
+      "id": "quest-7",
+      "title": "PC Kantor Sudah Bosa Set IP Sendiri",
+      "xp": 175,
+      "npc": {
+        "name": "Dewi",
+        "role": "Staf IT Support"
+      },
+      "dialog": "\"Setiap PC baru harus dikonfigurasi IP manual — capek! Buat DHCP pool LAN1 di R1 (network 192.168.1.0/24, gateway 192.168.1.1). PC-1 akan kuberalikan ke otomatis: ipconfig /release dulu, lalu /renew. Pastikan dia dapat lease dari router.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "7a",
+          "type": "dhcp-lease",
+          "device": "pc1",
+          "interface": "FastEthernet0",
+          "expect": {
+            "gateway": "192.168.1.1"
+          },
+          "text": "PC-1 menerima lease DHCP dari pool router (gateway 192.168.1.1)"
+        },
+        {
+          "id": "7b",
+          "type": "ping",
+          "from": "pc1",
+          "to": "192.168.2.1",
+          "text": "Dari PC-1, ping gateway cabang 192.168.2.1 tetap sukses"
+        }
+      ]
+    },
+    {
+      "id": "quest-8",
+      "title": "Server DNS Internal",
+      "xp": 175,
+      "npc": {
+        "name": "Pak Anton",
+        "role": "Administrator Server"
+      },
+      "dialog": "\"IP address susah dihafal. Konversi PC-2 menjadi SERVER (perintah role server), hidupkan service DNS, dan buat record web1 -> 192.168.2.10. Setelah itu dari PC-1 cukup ping web1 — resolusi harusnya otomatis.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "8a",
+          "type": "role",
+          "device": "pc2",
+          "expect": "server",
+          "text": "PC-2 dikonversi menjadi server (role server)"
+        },
+        {
+          "id": "8b",
+          "type": "service",
+          "device": "pc2",
+          "service": "dns",
+          "expect": {
+            "on": true,
+            "hasRecord": {
+              "name": "web1",
+              "ip": "192.168.2.10"
+            }
+          },
+          "text": "Service DNS aktif dengan record web1 -> 192.168.2.10"
+        },
+        {
+          "id": "8c",
+          "type": "ping",
+          "from": "pc1",
+          "to": "web1",
+          "text": "Dari PC-1, ping web1 sukses (DNS resolution bekerja)"
+        }
+      ]
+    },
+    {
+      "id": "quest-9",
+      "title": "Portal Web Perusahaan",
+      "xp": 125,
+      "npc": {
+        "name": "Nayla",
+        "role": "Kommunikasi Korporat"
+      },
+      "dialog": "\"Pengumuman kantor sekarang lewat web. Hidupkan service HTTP di server, lalu buka portalnya dari PC-1 dengan: web http://192.168.2.10/index.html — halaman selamat datang harus muncul.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "9a",
+          "type": "service",
+          "device": "pc2",
+          "service": "http",
+          "expect": {
+            "on": true
+          },
+          "text": "Service HTTP aktif di server"
+        },
+        {
+          "id": "9b",
+          "type": "ping",
+          "from": "pc1",
+          "to": "192.168.2.10",
+          "text": "Dari PC-1, server terjangkau (uji visual: web http://192.168.2.10/index.html)"
+        }
+      ]
+    },
+    {
+      "id": "quest-10",
+      "title": "Backup Konfigurasi ke TFTP",
+      "xp": 150,
+      "npc": {
+        "name": "Pak Hendra",
+        "role": "Network Engineer Pusat"
+      },
+      "dialog": "\"Konfigurasi router cuma ada di NVRAM — kalau mati lampu semua hilang. Hidupkan TFTP di server, lalu simpan running-config R1: copy running-config tftp://192.168.2.10/r1-confg. File backup harus tercatat di server.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "10a",
+          "type": "service",
+          "device": "pc2",
+          "service": "tftp",
+          "expect": {
+            "on": true
+          },
+          "text": "Service TFTP aktif di server"
+        },
+        {
+          "id": "10b",
+          "type": "service",
+          "device": "pc2",
+          "service": "tftp",
+          "expect": {
+            "on": true,
+            "hasFile": "r1-confg"
+          },
+          "text": "File backup r1-confg tersimpan di TFTP server"
+        }
+      ]
+    },
+    {
+      "id": "quest-11",
+      "title": "Sentral Log Syslog",
+      "xp": 150,
+      "npc": {
+        "name": "Bu Maya",
+        "role": "Arsitek Jaringan"
+      },
+      "dialog": "\"Kalau router di-restart tengah malam, siapa yang tahu? Aktifkan service Syslog di server, lalu arahkan R1: logging 192.168.2.10. Lakukan satu perubahan konfigurasi di R1 — pesan %SYS harus sampai ke server.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "11a",
+          "type": "service",
+          "device": "pc2",
+          "service": "syslog",
+          "expect": {
+            "on": true
+          },
+          "text": "Service Syslog aktif di server"
+        },
+        {
+          "id": "11b",
+          "type": "service",
+          "device": "pc2",
+          "service": "syslog",
+          "expect": {
+            "on": true,
+            "minMessages": 1
+          },
+          "fromHost": "r1",
+          "text": "Minimal 1 pesan syslog dari R1 diterima server"
+        }
+      ]
+    },
+    {
+      "id": "quest-12",
+      "title": "Manajemen Aman via SSH",
+      "xp": 200,
+      "npc": {
+        "name": "Pak Anton",
+        "role": "Administrator Server"
+      },
+      "dialog": "\"Telnet itu tanpa enkripsi — password bisa disadap. Konfigurasi SSH di R1: hostname R1, ip domain name netquest.local, lalu crypto key generate rsa modulus 1024. Dari PC-1, uji masuk dengan: ssh r1 (alias IP-nya).\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "12a",
+          "type": "ssh",
+          "device": "r1",
+          "expect": {
+            "domain": "netquest.local"
+          },
+          "text": "R1: ip domain name netquest.local terpasang"
+        },
+        {
+          "id": "12b",
+          "type": "ssh",
+          "device": "r1",
+          "expect": {
+            "keyModulus": 1024
+          },
+          "text": "R1: kunci RSA modulus >= 1024 dibuat (SSH aktif)"
+        },
+        {
+          "id": "12c",
+          "type": "ping",
+          "from": "pc1",
+          "to": "10.0.0.1",
+          "text": "Dari PC-1, R1 terjangkau (uji visual: ssh 10.0.0.1)"
+        }
+      ]
+    },
+    {
+      "id": "quest-13",
+      "title": "Waktu Jaringan Tersinkron",
+      "xp": 150,
+      "npc": {
+        "name": "Dewi",
+        "role": "Staf IT Support"
+      },
+      "dialog": "\"Log dari dua router waktunya beda-beda — susah investigasi. Hidupkan service NTP di server, lalu arahkan R1 dan R2: ntp server 192.168.2.10. show ntp status harus bilang Clock is synchronized.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "13a",
+          "type": "service",
+          "device": "pc2",
+          "service": "ntp",
+          "expect": {
+            "on": true
+          },
+          "text": "Service NTP aktif di server"
+        },
+        {
+          "id": "13b",
+          "type": "ntp",
+          "device": "r1",
+          "expect": {
+            "server": "192.168.2.10"
+          },
+          "text": "R1 sinkron ke NTP server 192.168.2.10"
+        },
+        {
+          "id": "13c",
+          "type": "ntp",
+          "device": "r2",
+          "expect": {
+            "server": "192.168.2.10"
+          },
+          "text": "R2 sinkron ke NTP server 192.168.2.10"
+        }
+      ]
+    },
+    {
+      "id": "quest-14",
+      "title": "Segmentasi VLAN Kantor Baru",
+      "xp": 175,
+      "npc": {
+        "name": "Rina",
+        "role": "Kepala Gudang Cabang"
+      },
+      "dialog": "\"Tim office baru akan pakai port sisa di SW-1 (Fa0/3), tapi traffic-nya harus terpisah. Buat VLAN 20 bernama OFFICE di SW-1, lalu masukkan Fa0/3 sebagai access VLAN 20.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "14a",
+          "type": "vlan",
+          "device": "sw1",
+          "vlan": 20,
+          "name": "OFFICE",
+          "text": "SW-1: VLAN 20 bernama OFFICE dibuat"
+        },
+        {
+          "id": "14b",
+          "type": "switchport",
+          "device": "sw1",
+          "interface": "FastEthernet0/3",
+          "expect": {
+            "mode": "access",
+            "accessVlan": 20
+          },
+          "text": "SW-1: Fa0/3 sebagai access port VLAN 20"
+        }
+      ]
+    },
+    {
+      "id": "quest-15",
+      "title": "Peering eBGP Antar-Cabang",
+      "xp": 225,
+      "npc": {
+        "name": "Bu Maya",
+        "role": "Arsitek Jaringan"
+      },
+      "dialog": "\"Untuk simulasi konek ke provider, kita praktik eBGP: R1 di AS 65001, R2 di AS 65002. Jadikan tetangga lewat WAN (10.0.0.1 <-> 10.0.0.2) dan advertise masing-masing LAN. Ping antar PC harus sukses lewat BGP.\"",
+      "initial": [],
+      "objectives": [
+        {
+          "id": "15a",
+          "type": "protocol",
+          "device": "r1",
+          "proto": "bgp",
+          "as": 65001,
+          "network": "192.168.1.0",
+          "neighbor": {
+            "remoteAs": 65002
+          },
+          "text": "R1: BGP AS 65001 advertise 192.168.1.0, neighbor remote-as 65002"
+        },
+        {
+          "id": "15b",
+          "type": "protocol",
+          "device": "r2",
+          "proto": "bgp",
+          "as": 65002,
+          "network": "192.168.2.0",
+          "neighbor": {
+            "remoteAs": 65001
+          },
+          "text": "R2: BGP AS 65002 advertise 192.168.2.0, neighbor remote-as 65001"
+        },
+        {
+          "id": "15c",
+          "type": "ping",
+          "from": "pc1",
+          "to": "192.168.2.10",
+          "text": "Dari PC-1, ping PC-2 sukses lewat jalur eBGP"
+        }
+      ]
+    },
+    {
+      "id": "quest-16",
+      "title": "Insiden Besar: Audit Bersih-Bersih",
+      "xp": 300,
+      "npc": {
+        "name": "Pak Direktur",
+        "role": "Direktur Operasional"
+      },
+      "dialog": "\"Hasil audit jaringan menemukan DUA konfigurasi mencurigakan: (1) rute statis sisa ke subnet hantu 192.168.9.0/24 di R2 yang mengarah ke 192.168.2.2 — subnet itu tidak pernah ada, dan (2) ACL 10 sisa uji-coba yang menempel di interface WAN R1 (Gi0/1, arah in) memblokir host audit 192.168.1.99. Bersihkan keduanya: hapus rute hantu, dan lepas ACL 10 dari Gi0/1 dengan 'no ip access-group 10 in'. Ping PC-1 ke PC-2 adalah bukti jaringan tetap sehat.\"",
+      "initial": [
+        {
+          "device": "r2",
+          "route": {
+            "network": "192.168.9.0",
+            "mask": "255.255.255.0",
+            "nextHop": "192.168.2.2"
+          }
+        },
+        {
+          "device": "r1",
+          "acl": {
+            "number": 10,
+            "rules": [
+              {
+                "action": "deny",
+                "src": "192.168.1.99",
+                "wildcard": "0.0.0.0"
+              },
+              {
+                "action": "permit",
+                "src": "any"
+              }
+            ],
+            "interface": "GigabitEthernet0/1",
+            "direction": "in"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "16a",
+          "type": "route",
+          "device": "r2",
+          "expect": {
+            "network": "192.168.9.0",
+            "mask": "255.255.255.0",
+            "nextHop": "192.168.2.2",
+            "absent": true
+          },
+          "text": "R2: rute hantu 192.168.9.0/24 via 192.168.2.2 sudah dihapus"
+        },
+        {
+          "id": "16b",
+          "type": "interface",
+          "device": "r1",
+          "interface": "GigabitEthernet0/1",
+          "expect": {
+            "aclIn": null
+          },
+          "text": "R1 Gi0/1: ACL 10 sudah dilepas dari interface (no ip access-group 10 in)"
+        },
+        {
+          "id": "16c",
+          "type": "ping",
+          "from": "pc1",
+          "to": "192.168.2.10",
+          "text": "Dari PC-1, ping PC-2 sukses — jaringan tetap sehat setelah audit"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "description": "State awal perangkat lab NetQuest (kondisi netral/semua benar). Quest menyuntikkan kerusakan (shutdown, IP salah) saat server boot — lihat src/quests/definitions.json."
+  },
+  "devices": [
+    {
+      "id": "pc1",
+      "hostname": "PC-1",
+      "type": "pc",
+      "gw": "192.168.1.1",
+      "interfaces": {
+        "FastEthernet0": { "ip": "192.168.1.10", "mask": "255.255.255.0", "adminUp": true, "description": "NIC PC-1" }
+      },
+      "routes": [], "vlans": [], "arpTable": []
+    },
+    {
+      "id": "sw1",
+      "hostname": "SW-1",
+      "type": "switch",
+      "info": { "model": "WS-C2960-24TT", "ios": "C2960 Software (C2960-LANBASEK9-M), Version 15.0(2)SE4" },
+      "interfaces": {
+        "FastEthernet0/1": { "ip": null, "mask": null, "adminUp": true, "description": "To PC-1" },
+        "FastEthernet0/2": { "ip": null, "mask": null, "adminUp": true, "description": "To R1" },
+        "FastEthernet0/3": { "ip": null, "mask": null, "adminUp": true, "description": "Spare" },
+        "Vlan1": { "ip": null, "mask": null, "adminUp": true, "description": "Management SVI" }
+      },
+      "vlans": [{ "id": 1, "name": "default" }],
+      "routes": [], "arpTable": []
+    },
+    {
+      "id": "r1",
+      "hostname": "R1",
+      "type": "router",
+      "info": { "model": "CISCO2911/K9", "ios": "C2900-UNIVERSALK9-M, Version 15.2(4)M3" },
+      "interfaces": {
+        "GigabitEthernet0/0": { "ip": "192.168.1.1", "mask": "255.255.255.0", "adminUp": true, "description": "LAN Kantor Pusat" },
+        "GigabitEthernet0/1": { "ip": "10.0.0.1", "mask": "255.255.255.252", "adminUp": true, "description": "WAN ke R2" }
+      },
+      "routes": [], "vlans": [], "arpTable": []
+    },
+    {
+      "id": "r2",
+      "hostname": "R2",
+      "type": "router",
+      "info": { "model": "CISCO2911/K9", "ios": "C2900-UNIVERSALK9-M, Version 15.2(4)M3" },
+      "interfaces": {
+        "GigabitEthernet0/0": { "ip": "10.0.0.2", "mask": "255.255.255.252", "adminUp": true, "description": "WAN ke R1" },
+        "GigabitEthernet0/1": { "ip": "192.168.2.1", "mask": "255.255.255.0", "adminUp": true, "description": "LAN Kantor Cabang" }
+      },
+      "routes": [], "vlans": [], "arpTable": []
+    },
+    {
+      "id": "sw2",
+      "hostname": "SW-2",
+      "type": "switch",
+      "info": { "model": "WS-C2960-24TT", "ios": "C2960 Software (C2960-LANBASEK9-M), Version 15.0(2)SE4" },
+      "interfaces": {
+        "FastEthernet0/1": { "ip": null, "mask": null, "adminUp": true, "description": "To R2" },
+        "FastEthernet0/2": { "ip": null, "mask": null, "adminUp": true, "description": "To PC-2" },
+        "FastEthernet0/3": { "ip": null, "mask": null, "adminUp": true, "description": "Spare" },
+        "Vlan1": { "ip": null, "mask": null, "adminUp": true, "description": "Management SVI" }
+      },
+      "vlans": [{ "id": 1, "name": "default" }],
+      "routes": [], "arpTable": []
+    },
+    {
+      "id": "pc2",
+      "hostname": "PC-2",
+      "type": "pc",
+      "gw": "192.168.2.1",
+      "interfaces": {
+        "FastEthernet0": { "ip": "192.168.2.10", "mask": "255.255.255.0", "adminUp": true, "description": "NIC PC-2" }
+      },
+      "routes": [], "vlans": [], "arpTable": []
+    }
+  ]
+}

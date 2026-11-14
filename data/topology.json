@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "name": "NetQuest Lab — Kantor Pusat & Cabang",
+    "description": "2 Router + 2 Switch + 2 PC. LAN pusat 192.168.1.0/24, WAN 10.0.0.0/30, LAN cabang 192.168.2.0/24.",
+    "canvas": { "width": 1400, "height": 620 }
+  },
+  "nodes": [
+    { "id": "pc1", "type": "pc", "label": "PC-1", "x": -560, "y": -170 },
+    { "id": "sw1", "type": "switch", "label": "SW-1", "x": -280, "y": -170 },
+    { "id": "r1", "type": "router", "label": "R1", "x": 0, "y": 0 },
+    { "id": "r2", "type": "router", "label": "R2", "x": 420, "y": 0 },
+    { "id": "sw2", "type": "switch", "label": "SW-2", "x": 700, "y": -170 },
+    { "id": "pc2", "type": "pc", "label": "PC-2", "x": 980, "y": -170 }
+  ],
+  "links": [
+    { "a": { "device": "pc1", "interface": "FastEthernet0" }, "b": { "device": "sw1", "interface": "FastEthernet0/1" } },
+    { "a": { "device": "sw1", "interface": "FastEthernet0/2" }, "b": { "device": "r1", "interface": "GigabitEthernet0/0" } },
+    { "a": { "device": "r1", "interface": "GigabitEthernet0/1" }, "b": { "device": "r2", "interface": "GigabitEthernet0/0" } },
+    { "a": { "device": "r2", "interface": "GigabitEthernet0/1" }, "b": { "device": "sw2", "interface": "FastEthernet0/1" } },
+    { "a": { "device": "sw2", "interface": "FastEthernet0/2" }, "b": { "device": "pc2", "interface": "FastEthernet0" } }
+  ]
+}

@@ -1,0 +1,2043 @@
+{
+  "meta": {
+    "description": "Definisi perintah Cisco IOS yang dikenali parser NetQuest. Setiap entry dipakai untuk: (1) matching regex ketat, (2) cek mode context-aware, (3) dispatch ke handler, (4) daftar bantuan '?'.",
+    "notes": [
+      "pattern: regex JS dengan anchor ^...$ penuh. Nilai IP ditulis longgar (\\d{1,3}(...){0,3}) dan divalidasi ketat oleh handler agar caret error bisa menunjuk argumen yang salah.",
+      "mode: daftar mode CLI tempat perintah VALID. Eksekusi di mode lain menghasilkan '% Invalid input detected at '^' marker.' dengan caret di kolom 0 (perilaku IOS).",
+      "deviceTypes: tipe perangkat yang mengenal perintah ini. Bila tidak diisi, berarti [router, switch]. PC hanya mengenal perintah dengan deviceTypes berisi 'pc'.",
+      "Singkatan mengikuti Cisco IOS / Packet Tracer: en, conf t, sh ip int br, sh run, wr, copy run start, tracer, banner motd, line con 0, dst. `do <exec>` menjalankan perintah EXEC dari mode config."
+    ]
+  },
+  "commands": [
+    {
+      "name": "enable",
+      "pattern": "^en(?:able)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdEnable",
+      "help": "Turn on privileged commands",
+      "group": "Exec",
+      "usage": "enable"
+    },
+    {
+      "name": "disable",
+      "pattern": "^dis(?:able)?$",
+      "mode": [
+        "privileged"
+      ],
+      "handler": "cmdDisable",
+      "help": "Turn off privileged commands",
+      "group": "Exec",
+      "usage": "disable"
+    },
+    {
+      "name": "exit",
+      "pattern": "^ex(?:it)?$",
+      "mode": [
+        "user",
+        "privileged",
+        "global-config",
+        "interface-config",
+        "line-config",
+        "router-config",
+        "vlan-config",
+        "dhcp-config"
+      ],
+      "handler": "cmdExit",
+      "help": "Exit from the EXEC / current mode",
+      "group": "Exec",
+      "usage": "exit",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "logout",
+      "pattern": "^log(?:out)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdExit",
+      "help": "Exit from the EXEC",
+      "group": "Exec",
+      "usage": "logout",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "end",
+      "pattern": "^end$",
+      "mode": [
+        "global-config",
+        "interface-config",
+        "line-config",
+        "router-config",
+        "vlan-config",
+        "dhcp-config"
+      ],
+      "handler": "cmdEnd",
+      "help": "Exit from configuration mode",
+      "group": "Exec",
+      "usage": "end",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "configure-terminal",
+      "pattern": "^conf(?:igure)?(?:\\s+t(?:erminal)?)?$",
+      "mode": [
+        "privileged"
+      ],
+      "handler": "cmdConfigureTerminal",
+      "help": "Enter global configuration mode",
+      "group": "Exec",
+      "usage": "configure terminal"
+    },
+    {
+      "name": "hostname",
+      "pattern": "^host(?:name)?\\s+(?<name>\\S+)$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdHostname",
+      "help": "Set the device hostname",
+      "group": "Global Config",
+      "usage": "hostname <name>"
+    },
+    {
+      "name": "no-hostname",
+      "pattern": "^no\\s+host(?:name)?(?:\\s+\\S+)?$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoHostname",
+      "help": "Reset hostname to factory default",
+      "group": "Global Config",
+      "usage": "no hostname"
+    },
+    {
+      "name": "enable-secret",
+      "pattern": "^enable\\s+sec(?:ret)?(?:\\s+(?<level>\\d))?\\s+(?<secret>\\S+)$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdEnableSecret",
+      "help": "Set the privileged EXEC password (hashed)",
+      "group": "Global Config",
+      "usage": "enable secret <password>"
+    },
+    {
+      "name": "no-enable-secret",
+      "pattern": "^no\\s+enable\\s+sec(?:ret)?(?:\\s+\\d+)?$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoEnableSecret",
+      "help": "Remove the enable secret password",
+      "group": "Global Config",
+      "usage": "no enable secret"
+    },
+    {
+      "name": "enable-password",
+      "pattern": "^enable\\s+pass(?:word)?(?:\\s+(?<level>\\d))?\\s+(?<secret>\\S+)$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdEnableSecret",
+      "help": "Set the privileged EXEC password (unencrypted)",
+      "group": "Global Config",
+      "usage": "enable password <password>"
+    },
+    {
+      "name": "no-enable-password",
+      "pattern": "^no\\s+enable\\s+pass(?:word)?(?:\\s+\\d+)?$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoEnableSecret",
+      "help": "Remove the enable password",
+      "group": "Global Config",
+      "usage": "no enable password"
+    },
+    {
+      "name": "line-console",
+      "pattern": "^line\\s+(?<lineType>con|console|aux|vty)\\s*(?<index>\\d+)?(?:\\s+(?<endIdx>\\d+))?$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdLineConsole",
+      "help": "Enter line configuration mode (console 0 / vty 0 4)",
+      "group": "Global Config",
+      "usage": "line console 0"
+    },
+    {
+      "name": "banner-motd",
+      "pattern": "^banner\\s+motd\\s+(?<delim>\\S)(?<text>[\\s\\S]*?)\\k<delim>$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdBannerMotd",
+      "help": "Set the message-of-the-day banner, e.g. banner motd #text#",
+      "group": "Global Config",
+      "usage": "banner motd #<text>#"
+    },
+    {
+      "name": "no-banner-motd",
+      "pattern": "^no\\s+banner\\s+motd$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoBannerMotd",
+      "help": "Remove the MOTD banner",
+      "group": "Global Config",
+      "usage": "no banner motd"
+    },
+    {
+      "name": "password-line",
+      "pattern": "^pass(?:word)?\\s+(?<secret>\\S+)$",
+      "mode": [
+        "line-config"
+      ],
+      "handler": "cmdPasswordLine",
+      "help": "Set a password on the line",
+      "group": "Line Config",
+      "usage": "password <password>"
+    },
+    {
+      "name": "no-password-line",
+      "pattern": "^no\\s+pass(?:word)?$",
+      "mode": [
+        "line-config"
+      ],
+      "handler": "cmdNoPasswordLine",
+      "help": "Remove the line password",
+      "group": "Line Config",
+      "usage": "no password"
+    },
+    {
+      "name": "login-line",
+      "pattern": "^log(?:in)?$",
+      "mode": [
+        "line-config"
+      ],
+      "handler": "cmdLoginLine",
+      "help": "Enable password checking at login",
+      "group": "Line Config",
+      "usage": "login"
+    },
+    {
+      "name": "no-login-line",
+      "pattern": "^no\\s+log(?:in)?$",
+      "mode": [
+        "line-config"
+      ],
+      "handler": "cmdNoLoginLine",
+      "help": "Disable password checking at login",
+      "group": "Line Config",
+      "usage": "no login"
+    },
+    {
+      "name": "interface",
+      "pattern": "^int(?:erface)?\\s+(?<name>[A-Za-z]+\\d+(?:/\\d+)*)$",
+      "mode": [
+        "global-config",
+        "interface-config",
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdInterface",
+      "help": "Select an interface to configure (e.g. GigabitEthernet0/0)",
+      "group": "Global Config",
+      "usage": "interface <name>",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "interface-range",
+      "pattern": "^int(?:erface)?\\s+range\\s+(?<range>\\S+(?:\\s+-\\s*\\d+)?)$",
+      "mode": [
+        "global-config",
+        "interface-config"
+      ],
+      "handler": "cmdInterfaceRange",
+      "help": "Enter interface range configuration (limited support)",
+      "group": "Global Config",
+      "usage": "interface range <range>",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "ip-address",
+      "pattern": "^ip\\s+add(?:ress)?\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+(?<mask>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdIpAddress",
+      "help": "Set IP address and subnet mask on the interface",
+      "group": "Interface Config",
+      "usage": "ip address <ip> <mask>"
+    },
+    {
+      "name": "no-ip-address",
+      "pattern": "^no\\s+ip\\s+add(?:ress)?$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdNoIpAddress",
+      "help": "Remove IP address from the interface",
+      "group": "Interface Config",
+      "usage": "no ip address"
+    },
+    {
+      "name": "shutdown",
+      "pattern": "^shut(?:down)?$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdShutdown",
+      "help": "Administratively shut down the interface",
+      "group": "Interface Config",
+      "usage": "shutdown"
+    },
+    {
+      "name": "no-shutdown",
+      "pattern": "^no\\s+shut(?:down)?$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdNoShutdown",
+      "help": "Bring the interface up (enable it)",
+      "group": "Interface Config",
+      "usage": "no shutdown"
+    },
+    {
+      "name": "description",
+      "pattern": "^desc(?:ription)?\\s+(?<text>.+)$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdDescription",
+      "help": "Set description text on the interface",
+      "group": "Interface Config",
+      "usage": "description <text>"
+    },
+    {
+      "name": "no-description",
+      "pattern": "^no\\s+desc(?:ription)?$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdNoDescription",
+      "help": "Remove interface description",
+      "group": "Interface Config",
+      "usage": "no description"
+    },
+    {
+      "name": "ip-route",
+      "pattern": "^ip\\s+ro(?:ute)?\\s+(?<network>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+(?<mask>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+(?<nextHop>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdIpRoute",
+      "help": "Add a static route: ip route <network> <mask> <next-hop>",
+      "group": "Global Config",
+      "usage": "ip route <network> <mask> <next-hop>"
+    },
+    {
+      "name": "no-ip-route",
+      "pattern": "^no\\s+ip\\s+ro(?:ute)?\\s+(?<network>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+(?<mask>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+(?<nextHop>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoIpRoute",
+      "help": "Remove a matching static route",
+      "group": "Global Config",
+      "usage": "no ip route <network> <mask> <next-hop>"
+    },
+    {
+      "name": "show-ip-interface-brief",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+int(?:erface)?\\s+b(?:r(?:i(?:e(?:f)?)?)?)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpInterfaceBrief",
+      "help": "Show IP address and status of all interfaces",
+      "group": "Show",
+      "usage": "show ip interface brief"
+    },
+    {
+      "name": "show-ip-interface",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+int(?:erface)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpInterface",
+      "help": "Show detailed IP interface status",
+      "group": "Show",
+      "usage": "show ip interface"
+    },
+    {
+      "name": "show-ip-route",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+ro(?:ute)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpRoute",
+      "help": "Show the IP routing table",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip route"
+    },
+    {
+      "name": "show-ip-route-network",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+ro(?:ute)?\\s+(?<network>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpRouteNetwork",
+      "help": "Show routing table entries for one network",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip route <network>"
+    },
+    {
+      "name": "show-running-config",
+      "pattern": "^sh(?:ow)?\\s+run(?:ning-config)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showRunningConfig",
+      "help": "Show current running configuration",
+      "group": "Show",
+      "usage": "show running-config"
+    },
+    {
+      "name": "show-startup-config",
+      "pattern": "^sh(?:ow)?\\s+start(?:up-config)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showStartupConfig",
+      "help": "Show the saved startup configuration",
+      "group": "Show",
+      "usage": "show startup-config"
+    },
+    {
+      "name": "show-interfaces",
+      "pattern": "^sh(?:ow)?\\s+int(?:erface)?s?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showInterfaces",
+      "help": "Show status and statistics of all interfaces",
+      "group": "Show",
+      "usage": "show interfaces",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "show-interfaces-name",
+      "pattern": "^sh(?:ow)?\\s+int(?:erface)?s?\\s+(?<name>\\S+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showInterfaces",
+      "help": "Show status of one interface",
+      "group": "Show",
+      "usage": "show interfaces <name>",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "show-version",
+      "pattern": "^sh(?:ow)?\\s+ver(?:sion)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showVersion",
+      "help": "Show IOS version, model, and uptime",
+      "group": "Show",
+      "usage": "show version"
+    },
+    {
+      "name": "show-arp",
+      "pattern": "^sh(?:ow)?\\s+arp$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showArp",
+      "help": "Show the ARP table",
+      "group": "Show",
+      "usage": "show arp"
+    },
+    {
+      "name": "show-vlan-brief",
+      "pattern": "^sh(?:ow)?\\s+vl(?:an)?(?:\\s+b(?:r(?:i(?:e(?:f)?)?)?)?)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showVlanBrief",
+      "help": "Show VLAN table (switch only)",
+      "group": "Show",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "show vlan brief"
+    },
+    {
+      "name": "show-history",
+      "pattern": "^sh(?:ow)?\\s+hist(?:ory)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showHistory",
+      "help": "Show the command history list",
+      "group": "Show",
+      "usage": "show history"
+    },
+    {
+      "name": "show-clock",
+      "pattern": "^sh(?:ow)?\\s+clo(?:ck)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showClock",
+      "help": "Show the system clock",
+      "group": "Show",
+      "usage": "show clock"
+    },
+    {
+      "name": "ping",
+      "pattern": "^ping\\s+(?<ip>[\\w.-]+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdPing",
+      "help": "Send ICMP echo to an IP address or hostname",
+      "group": "Utility",
+      "deviceTypes": [
+        "router",
+        "pc"
+      ],
+      "usage": "ping <ip|hostname>"
+    },
+    {
+      "name": "traceroute",
+      "pattern": "^tr(?:a(?:c(?:e(?:r(?:o(?:u(?:t(?:e)?)?)?)?)?)?)?)?\\s+(?<ip>[\\w.-]+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdTraceroute",
+      "help": "Trace the route to a destination (IOS 'traceroute')",
+      "group": "Utility",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "traceroute <ip|hostname>"
+    },
+    {
+      "name": "copy-running-startup",
+      "pattern": "^copy\\s+run(?:ning-config)?\\s+start(?:up-config)?$",
+      "mode": [
+        "privileged"
+      ],
+      "handler": "cmdCopyRunStart",
+      "help": "Save the running configuration to startup-config",
+      "group": "Utility",
+      "usage": "copy running-config startup-config"
+    },
+    {
+      "name": "copy-startup-running",
+      "pattern": "^copy\\s+start(?:up-config)?\\s+run(?:ning-config)?$",
+      "mode": [
+        "privileged"
+      ],
+      "handler": "cmdCopyStartRun",
+      "help": "Restore the startup configuration into memory",
+      "group": "Utility",
+      "usage": "copy startup-config running-config"
+    },
+    {
+      "name": "write-memory",
+      "pattern": "^wr(?:ite)?(?:\\s+(?:mem|memory))?$",
+      "mode": [
+        "privileged"
+      ],
+      "handler": "cmdWriteMemory",
+      "help": "Save the running configuration (same as copy run start)",
+      "group": "Utility",
+      "usage": "write memory"
+    },
+    {
+      "name": "erase-startup-config",
+      "pattern": "^era(?:se)?\\s+start(?:up-config)?$",
+      "mode": [
+        "privileged"
+      ],
+      "handler": "cmdEraseStartup",
+      "help": "Erase the startup configuration",
+      "group": "Utility",
+      "usage": "erase startup-config"
+    },
+    {
+      "name": "reload",
+      "pattern": "^rel(?:oad)?$",
+      "mode": [
+        "privileged"
+      ],
+      "handler": "cmdReload",
+      "help": "Reload the device (restores startup-config)",
+      "group": "Utility",
+      "usage": "reload"
+    },
+    {
+      "name": "do",
+      "pattern": "^do\\s+(?<line>[\\s\\S]+)$",
+      "mode": [
+        "global-config",
+        "interface-config",
+        "line-config",
+        "router-config",
+        "vlan-config",
+        "dhcp-config"
+      ],
+      "handler": "cmdDo",
+      "help": "Run an EXEC command from configuration mode, e.g. do show ip route",
+      "group": "Exec",
+      "usage": "do <command>"
+    },
+    {
+      "name": "ipconfig",
+      "pattern": "^ipconfig(?:\\s+/(?<opt>all|renew|release))?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdIpconfig",
+      "help": "Show PC IP configuration (ipconfig /all for details)",
+      "group": "Utility",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "ipconfig [/all]"
+    },
+    {
+      "name": "pc-arp",
+      "pattern": "^arp\\s+-a$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdPcArp",
+      "help": "Show the PC ARP cache (Windows: arp -a)",
+      "group": "Utility",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "arp -a"
+    },
+    {
+      "name": "tracert",
+      "pattern": "^tracert\\s+(?<ip>[\\w.-]+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdTracert",
+      "help": "Trace the route to a destination (Windows: tracert)",
+      "group": "Utility",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "tracert <ip|hostname>"
+    },
+    {
+      "name": "help-pc",
+      "pattern": "^(help|\\?)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdHelpPc",
+      "help": "List available commands",
+      "group": "Utility",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "help"
+    },
+    {
+      "name": "context-help",
+      "pattern": "^\\?$",
+      "mode": [
+        "user",
+        "privileged",
+        "global-config",
+        "interface-config",
+        "line-config",
+        "router-config",
+        "vlan-config",
+        "dhcp-config"
+      ],
+      "handler": "cmdContextHelp",
+      "help": "List commands available in the current mode",
+      "group": "Utility",
+      "usage": "?"
+    },
+    {
+      "name": "router-rip",
+      "pattern": "^router\\s+rip$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdRouterRip",
+      "help": "Enable RIP routing protocol and enter router configuration",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "router rip"
+    },
+    {
+      "name": "router-ospf",
+      "pattern": "^router\\s+ospf\\s+(?<pid>\\d{1,5})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdRouterOspf",
+      "help": "Enable OSPF with process ID and enter router configuration",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "router ospf <process-id>"
+    },
+    {
+      "name": "router-eigrp",
+      "pattern": "^router\\s+eigrp\\s+(?<as>\\d{1,5})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdRouterEigrp",
+      "help": "Enable EIGRP with autonomous system number",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "router eigrp <as-number>"
+    },
+    {
+      "name": "no-router",
+      "pattern": "^no\\s+router\\s+(?<proto>rip|ospf|eigrp|bgp)(?:\\s+(?<id>\\d{1,5}))?$",
+      "mode": [
+        "global-config",
+        "router-config"
+      ],
+      "handler": "cmdNoRouter",
+      "help": "Remove a routing protocol configuration",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no router rip | ospf <pid> | eigrp <as>"
+    },
+    {
+      "name": "network-proto",
+      "pattern": "^net(?:work)?\\s+(?<net>\\d{1,3}(?:\\.\\d{1,3}){0,3})(?:\\s+(?<wild>\\d{1,3}(?:\\.\\d{1,3}){0,3}))?(?:\\s+area\\s+(?<area>\\d{1,5}))?$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdNetworkProto",
+      "help": "Advertise a network (RIP/EIGRP classful, OSPF needs wildcard)",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "network <network> [<wildcard> [area <n>]]"
+    },
+    {
+      "name": "no-network-proto",
+      "pattern": "^no\\s+net(?:work)?\\s+(?<net>\\d{1,3}(?:\\.\\d{1,3}){0,3})(?:\\s+(?<wild>\\d{1,3}(?:\\.\\d{1,3}){0,3}))?(?:\\s+area\\s+(?<area>\\d{1,5}))?$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdNoNetworkProto",
+      "help": "Stop advertising a network",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no network <network> [<wildcard> [area <n>]]"
+    },
+    {
+      "name": "version-rip",
+      "pattern": "^ver(?:sion)?\\s+(?<v>[12])$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdVersionRip",
+      "help": "Set RIP version (1 or 2)",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "version <1|2>"
+    },
+    {
+      "name": "no-version-rip",
+      "pattern": "^no\\s+ver(?:sion)?$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdNoVersionRip",
+      "help": "Reset RIP version to default",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no version"
+    },
+    {
+      "name": "auto-summary",
+      "pattern": "^auto-summary$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdAutoSummary",
+      "help": "Enable automatic classful network summarization (RIP/EIGRP)",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "auto-summary"
+    },
+    {
+      "name": "no-auto-summary",
+      "pattern": "^no\\s+auto-summary$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdNoAutoSummary",
+      "help": "Disable automatic network summarization (RIP/EIGRP)",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no auto-summary"
+    },
+    {
+      "name": "passive-interface",
+      "pattern": "^pass(?:ive)?-int(?:erface)?\\s+(?<name>\\S+)$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdPassiveInterface",
+      "help": "Suppress routing updates on an interface",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "passive-interface <name>"
+    },
+    {
+      "name": "no-passive-interface",
+      "pattern": "^no\\s+pass(?:ive)?-int(?:erface)?\\s+(?<name>\\S+)$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdNoPassiveInterface",
+      "help": "Re-enable routing updates on an interface",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no passive-interface <name>"
+    },
+    {
+      "name": "router-id",
+      "pattern": "^router-id\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdRouterId",
+      "help": "Set the OSPF router ID",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "router-id <ip>"
+    },
+    {
+      "name": "show-ip-protocols",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+pro(?:tocols)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpProtocols",
+      "help": "Show active routing protocol parameters and sources",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip protocols"
+    },
+    {
+      "name": "show-ip-ospf",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+ospf$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpOspf",
+      "help": "Show OSPF process information",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip ospf"
+    },
+    {
+      "name": "show-ip-ospf-neighbor",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+ospf\\s+ne(?:ighbors)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpOspfNeighbor",
+      "help": "Show OSPF neighbor table",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip ospf neighbor"
+    },
+    {
+      "name": "show-ip-eigrp-neighbors",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+eigrp\\s+ne(?:ighbors)?(?:\\s+(?<as>\\d{1,5}))?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpEigrpNeighbors",
+      "help": "Show EIGRP neighbor table",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip eigrp neighbors [<as>]"
+    },
+    {
+      "name": "show-ip-eigrp-topology",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+eigrp\\s+to(?:pology)?(?:\\s+(?<as>\\d{1,5}))?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpEigrpTopology",
+      "help": "Show EIGRP topology table (successor / FD / RD)",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip eigrp topology [<as>]"
+    },
+    {
+      "name": "show-ip-rip-database",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+rip\\s+da(?:tabase)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpRipDatabase",
+      "help": "Show RIP database entries",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip rip database"
+    },
+    {
+      "name": "router-bgp",
+      "pattern": "^router\\s+bgp\\s+(?<as>\\d{1,5})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdRouterBgp",
+      "help": "Enable BGP with autonomous system number",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "router bgp <as-number>"
+    },
+    {
+      "name": "bgp-neighbor",
+      "pattern": "^ne(?:ighbor)?\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+rem(?:ote)?-as\\s+(?<ras>\\d{1,5})$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdBgpNeighbor",
+      "help": "Configure a BGP neighbor and its remote AS",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "neighbor <ip> remote-as <as>"
+    },
+    {
+      "name": "no-bgp-neighbor",
+      "pattern": "^no\\s+ne(?:ighbor)?\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})(?:\\s+rem(?:ote)?-as\\s+\\d{1,5})?$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdNoBgpNeighbor",
+      "help": "Remove a BGP neighbor",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no neighbor <ip>"
+    },
+    {
+      "name": "bgp-network",
+      "pattern": "^net(?:work)?\\s+(?<net>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+mask\\s+(?<mask>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdBgpNetwork",
+      "help": "Advertise a network in BGP (with mask)",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "network <net> mask <mask>"
+    },
+    {
+      "name": "no-bgp-network",
+      "pattern": "^no\\s+net(?:work)?\\s+(?<net>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+mask\\s+(?<mask>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "router-config"
+      ],
+      "handler": "cmdNoBgpNetwork",
+      "help": "Stop advertising a BGP network",
+      "group": "Router Config",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no network <net> mask <mask>"
+    },
+    {
+      "name": "ip-dhcp-pool",
+      "pattern": "^ip\\s+dhcp\\s+pool\\s+(?<name>\\S+)$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdIpDhcpPool",
+      "help": "Create a DHCP pool and enter DHCP pool configuration",
+      "group": "Services",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "ip dhcp pool <name>"
+    },
+    {
+      "name": "no-ip-dhcp-pool",
+      "pattern": "^no\\s+ip\\s+dhcp\\s+pool\\s+(?<name>\\S+)$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoIpDhcpPool",
+      "help": "Delete a DHCP pool",
+      "group": "Services",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no ip dhcp pool <name>"
+    },
+    {
+      "name": "ip-dhcp-excluded",
+      "pattern": "^ip\\s+dhcp\\s+ex(?:cluded)?-address\\s+(?<start>\\d{1,3}(?:\\.\\d{1,3}){0,3})(?:\\s+(?<end>\\d{1,3}(?:\\.\\d{1,3}){0,3}))?$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdIpDhcpExcluded",
+      "help": "Exclude IP addresses from DHCP pools",
+      "group": "Services",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "ip dhcp excluded-address <start> [<end>]"
+    },
+    {
+      "name": "dhcp-network",
+      "pattern": "^net(?:work)?\\s+(?<net>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+(?<mask>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "dhcp-config"
+      ],
+      "handler": "cmdDhcpNetwork",
+      "help": "Set the DHCP pool network and mask",
+      "group": "Services",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "network <net> <mask>"
+    },
+    {
+      "name": "dhcp-default-router",
+      "pattern": "^def(?:ault)?-router\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "dhcp-config"
+      ],
+      "handler": "cmdDhcpDefaultRouter",
+      "help": "Set the default gateway handed out by the DHCP pool",
+      "group": "Services",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "default-router <ip>"
+    },
+    {
+      "name": "dhcp-dns",
+      "pattern": "^dns-server\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "dhcp-config"
+      ],
+      "handler": "cmdDhcpDns",
+      "help": "Set the DNS server handed out by the DHCP pool",
+      "group": "Services",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "dns-server <ip>"
+    },
+    {
+      "name": "access-list",
+      "pattern": "^acc(?:ess)?-list\\s+(?<num>\\d{1,3})\\s+(?<action>permit|deny)\\s+(?<src>any|host\\s+\\d{1,3}(?:\\.\\d{1,3}){0,3}|\\d{1,3}(?:\\.\\d{1,3}){0,3})(?:\\s+(?<wild>\\d{1,3}(?:\\.\\d{1,3}){0,3}))?$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdAccessList",
+      "help": "Create a standard numbered ACL rule (implicit deny all)",
+      "group": "Security",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "access-list <1-99> permit|deny <src> [<wildcard>]"
+    },
+    {
+      "name": "no-access-list",
+      "pattern": "^no\\s+acc(?:ess)?-list\\s+(?<num>\\d{1,3})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoAccessList",
+      "help": "Delete an entire ACL",
+      "group": "Security",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no access-list <num>"
+    },
+    {
+      "name": "ip-access-group",
+      "pattern": "^ip\\s+acc(?:ess)?-group\\s+(?<num>\\d{1,3})\\s+(?<dir>in|out)$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdIpAccessGroup",
+      "help": "Apply an ACL to this interface (in or out)",
+      "group": "Security",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "ip access-group <num> in|out"
+    },
+    {
+      "name": "no-ip-access-group",
+      "pattern": "^no\\s+ip\\s+acc(?:ess)?-group\\s+(?<num>\\d{1,3})(?:\\s+(?<dir>in|out))?$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdNoIpAccessGroup",
+      "help": "Remove an ACL from this interface",
+      "group": "Security",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no ip access-group <num> [in|out]"
+    },
+    {
+      "name": "ip-nat-rule",
+      "pattern": "^ip\\s+nat\\s+inside\\s+source\\s+list\\s+(?<acl>\\d{1,3})\\s+interface\\s+(?<if>\\S+)\\s+overload$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdIpNatRule",
+      "help": "Enable NAT/PAT overload for an ACL via an outside interface",
+      "group": "Security",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "ip nat inside source list <acl> interface <if> overload"
+    },
+    {
+      "name": "no-ip-nat-rule",
+      "pattern": "^no\\s+ip\\s+nat\\s+inside\\s+source$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoIpNatRule",
+      "help": "Remove NAT overload rules",
+      "group": "Security",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no ip nat inside source"
+    },
+    {
+      "name": "ip-nat-side",
+      "pattern": "^ip\\s+nat\\s+(?<side>inside|outside)$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdIpNatSide",
+      "help": "Mark this interface as NAT inside or outside",
+      "group": "Security",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "ip nat inside|outside"
+    },
+    {
+      "name": "no-ip-nat-side",
+      "pattern": "^no\\s+ip\\s+nat\\s+(?<side>inside|outside)$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdNoIpNatSide",
+      "help": "Clear the NAT inside/outside marking on this interface",
+      "group": "Security",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "no ip nat inside|outside"
+    },
+    {
+      "name": "vlan-create",
+      "pattern": "^vlan\\s+(?<id>\\d{1,4})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdVlanCreate",
+      "help": "Create a VLAN and enter VLAN configuration",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "vlan <id>"
+    },
+    {
+      "name": "vlan-name",
+      "pattern": "^name\\s+(?<text>[\\S ]+)$",
+      "mode": [
+        "vlan-config"
+      ],
+      "handler": "cmdVlanName",
+      "help": "Name the current VLAN",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "name <text>"
+    },
+    {
+      "name": "no-vlan",
+      "pattern": "^no\\s+vlan\\s+(?<id>\\d{1,4})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoVlan",
+      "help": "Delete a VLAN (VLAN 1 cannot be deleted)",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "no vlan <id>"
+    },
+    {
+      "name": "switchport-mode",
+      "pattern": "^sw(?:itchport)?\\s+mode\\s+(?<mode>access|trunk)$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdSwitchportMode",
+      "help": "Set switchport mode to access or trunk",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "switchport mode access|trunk"
+    },
+    {
+      "name": "switchport-access-vlan",
+      "pattern": "^sw(?:itchport)?\\s+acc(?:ess)?\\s+vlan\\s+(?<id>\\d{1,4})$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdSwitchportAccessVlan",
+      "help": "Assign this access port to a VLAN (must exist)",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "switchport access vlan <id>"
+    },
+    {
+      "name": "switchport-trunk-native",
+      "pattern": "^sw(?:itchport)?\\s+tr(?:unk)?\\s+nat(?:ive)?\\s+vlan\\s+(?<id>\\d{1,4})$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdSwitchportTrunkNative",
+      "help": "Set the native VLAN of this trunk port (must exist)",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "switchport trunk native vlan <id>"
+    },
+    {
+      "name": "switchport-trunk-allowed",
+      "pattern": "^sw(?:itchport)?\\s+tr(?:unk)?\\s+all(?:owed)?\\s+vlan\\s+(?<list>all|[\\d,\\-\\s]+)$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdSwitchportTrunkAllowed",
+      "help": "Set allowed VLANs on this trunk port (list or 'all')",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "switchport trunk allowed vlan <list|all>"
+    },
+    {
+      "name": "no-switchport-trunk-allowed",
+      "pattern": "^no\\s+sw(?:itchport)?\\s+tr(?:unk)?\\s+all(?:owed)?\\s+vlan$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdNoSwitchportTrunkAllowed",
+      "help": "Reset allowed VLANs on this trunk port to all",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "no switchport trunk allowed vlan"
+    },
+    {
+      "name": "spanning-tree-priority",
+      "pattern": "^sp(?:anning)?-tree(?:\\s+vlan\\s+(?<vlan>\\d{1,4}))?\\s+pri(?:ority)?\\s+(?<prio>\\d{1,5})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdSpanningTreePriority",
+      "help": "Set spanning-tree bridge priority (lower wins root election)",
+      "group": "Switching",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "spanning-tree [vlan <id>] priority <0-61440>"
+    },
+    {
+      "name": "show-spanning-tree",
+      "pattern": "^sh(?:ow)?\\s+sp(?:an|anning)(?:-tree)?(?:\\s+vlan\\s+(?<vlan>\\d{1,4}))?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showSpanningTree",
+      "help": "Show spanning-tree state and root bridge election",
+      "group": "Show",
+      "deviceTypes": [
+        "switch"
+      ],
+      "usage": "show spanning-tree [vlan <id>]"
+    },
+    {
+      "name": "show-access-lists",
+      "pattern": "^sh(?:ow)?\\s+acc(?:ess-lists)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showAccessLists",
+      "help": "Show all ACLs and their rules",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show access-lists"
+    },
+    {
+      "name": "show-ip-dhcp-binding",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+dhcp\\s+bi(?:nding)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpDhcpBinding",
+      "help": "Show DHCP lease bindings",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip dhcp binding"
+    },
+    {
+      "name": "show-ip-nat-translations",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+nat\\s+tr(?:anslations)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpNatTranslations",
+      "help": "Show active NAT translations",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip nat translations"
+    },
+    {
+      "name": "show-ip-bgp",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+bgp$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpBgp",
+      "help": "Show the BGP table (Network / Next Hop / Path)",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip bgp"
+    },
+    {
+      "name": "show-ip-bgp-summary",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+bgp\\s+su(?:mmary)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpBgpSummary",
+      "help": "Show BGP neighbor summary",
+      "group": "Show",
+      "deviceTypes": [
+        "router"
+      ],
+      "usage": "show ip bgp summary"
+    },
+    {
+      "name": "show-capture",
+      "pattern": "^sh(?:ow)?\\s+cap(?:ture)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showCapture",
+      "help": "Show captured frames (export .pcap via /api/pcap/<device>)",
+      "group": "Show",
+      "usage": "show capture",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "interface-add",
+      "pattern": "^interface\\s+add\\s+(?<name>\\S+)$",
+      "mode": [
+        "global-config",
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdInterfaceAdd",
+      "help": "Tambah port baru ke perangkat (variasi Fa/Gi/Serial)",
+      "group": "Interface",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ],
+      "usage": "interface add <fa0/1|g0/2|s0/0/0>"
+    },
+    {
+      "name": "clock-rate",
+      "pattern": "^clock\\s+rate\\s+(?<rate>\\d{1,8})$",
+      "mode": [
+        "interface-config"
+      ],
+      "handler": "cmdClockRate",
+      "help": "Set clock rate pada port Serial (sisi DCE)",
+      "group": "Interface",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ],
+      "usage": "clock rate <bps>"
+    },
+    {
+      "name": "connect",
+      "pattern": "^connect\\s+(?<if>\\S+)\\s+(?<device>\\S+)\\s+(?<rif>\\S+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdConnect",
+      "help": "Hubungkan port lokal ke port perangkat lain (kabel otomatis: straight/crossover/serial)",
+      "group": "Utility (IOS)",
+      "usage": "connect <if> <device> <remote-if>",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "disconnect",
+      "pattern": "^dis(?:connect)?\\s+(?<if>\\S+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdDisconnect",
+      "help": "Lepas kabel dari port lokal",
+      "group": "Utility (IOS)",
+      "usage": "disconnect <if>",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ]
+    },
+    {
+      "name": "role",
+      "pattern": "^role\\s+(?<role>pc|server)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdRole",
+      "help": "Konversi PC menjadi server (atau kembali ke PC)",
+      "group": "Utility (PC)",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "role <pc|server>"
+    },
+    {
+      "name": "service-dhcp-toggle",
+      "pattern": "^service\\s+dhcp\\s+(?<act>on|off)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceDhcpToggle",
+      "help": "Hidupkan/matikan DHCP server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service dhcp <on|off>"
+    },
+    {
+      "name": "service-dhcp-range",
+      "pattern": "^service\\s+dhcp\\s+range\\s+(?<start>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\s+(?<end>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceDhcpRange",
+      "help": "Set range IP yang dibagikan DHCP server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service dhcp range <start> <end>"
+    },
+    {
+      "name": "service-dhcp-gateway",
+      "pattern": "^service\\s+dhcp\\s+gateway\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceDhcpGateway",
+      "help": "Set gateway yang dibagikan DHCP server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service dhcp gateway <ip>"
+    },
+    {
+      "name": "service-dhcp-dns",
+      "pattern": "^service\\s+dhcp\\s+dns\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceDhcpDns",
+      "help": "Set DNS yang dibagikan DHCP server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service dhcp dns <ip>"
+    },
+    {
+      "name": "service-dns-toggle",
+      "pattern": "^service\\s+dns\\s+(?<act>on|off)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceDnsToggle",
+      "help": "Hidupkan/matikan DNS server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service dns <on|off>"
+    },
+    {
+      "name": "service-dns-add",
+      "pattern": "^service\\s+dns\\s+add\\s+(?<name>[a-z0-9._-]+)\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceDnsAdd",
+      "help": "Tambah record nama -> IP di DNS server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service dns add <nama> <ip>"
+    },
+    {
+      "name": "service-dns-remove",
+      "pattern": "^service\\s+dns\\s+(?:remove|del)\\s+(?<name>[a-z0-9._-]+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceDnsRemove",
+      "help": "Hapus record DNS",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service dns remove <nama>"
+    },
+    {
+      "name": "service-http-toggle",
+      "pattern": "^service\\s+http\\s+(?<act>on|off)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceHttpToggle",
+      "help": "Hidupkan/matikan web server (HTTP)",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service http <on|off>"
+    },
+    {
+      "name": "service-tftp-toggle",
+      "pattern": "^service\\s+tftp\\s+(?<act>on|off)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceTftpToggle",
+      "help": "Hidupkan/matikan TFTP server (untuk copy config)",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service tftp <on|off>"
+    },
+    {
+      "name": "service-syslog-toggle",
+      "pattern": "^service\\s+syslog\\s+(?<act>on|off)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceSyslogToggle",
+      "help": "Hidupkan/matikan syslog server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service syslog <on|off>"
+    },
+    {
+      "name": "show-services",
+      "pattern": "^sh(?:ow)?\\s+serv(?:ices)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showServices",
+      "help": "Status semua service di perangkat ini",
+      "group": "Show",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "show services"
+    },
+    {
+      "name": "nslookup",
+      "pattern": "^nslookup\\s+(?<name>\\S+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdNslookup",
+      "help": "Resolve nama ke IP via DNS server jaringan",
+      "group": "Utility (PC)",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "nslookup <nama>"
+    },
+    {
+      "name": "netstat",
+      "pattern": "^netstat(?:\\s+-a)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdNetstat",
+      "help": "Ringkasan koneksi & service aktif (simulasi ala Windows)",
+      "group": "Utility (PC)",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "netstat"
+    },
+    {
+      "name": "telnet",
+      "pattern": "^telnet\\s+(?<target>\\S+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdTelnet",
+      "help": "Buka sesi CLI ke perangkat lain (keluar: exit/quit)",
+      "group": "Utility (PC)",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "telnet <ip|nama>"
+    },
+    {
+      "name": "web",
+      "pattern": "^web\\s+(?<url>\\S+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdWeb",
+      "help": "Buka halaman web dari HTTP server (ala web browser PT)",
+      "group": "Utility (PC)",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "web http://<nama|ip>/index.html"
+    },
+    {
+      "name": "logging-host",
+      "pattern": "^log(?:ging)?\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdLoggingHost",
+      "help": "Kirim syslog ke server tersebut",
+      "group": "Monitoring",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "logging <ip>"
+    },
+    {
+      "name": "no-logging-host",
+      "pattern": "^no\\s+log(?:ging)?$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoLoggingHost",
+      "help": "Hentikan pengiriman syslog",
+      "group": "Monitoring",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "no logging"
+    },
+    {
+      "name": "show-logging",
+      "pattern": "^sh(?:ow)?\\s+log(?:ging)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showLogging",
+      "help": "Tampilkan buffer syslog lokal",
+      "group": "Show",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "show logging"
+    },
+    {
+      "name": "copy-tftp-save",
+      "pattern": "^copy\\s+run(?:ning-config)?\\s+tftp:(?:\\/\\/|\\/)?(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\/(?<file>\\S+)$",
+      "mode": [
+        "privileged",
+        "user"
+      ],
+      "handler": "cmdCopyTftpSave",
+      "help": "Simpan running-config ke TFTP server",
+      "group": "Utility (IOS)",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ],
+      "usage": "copy running-config tftp://<ip>/<file>"
+    },
+    {
+      "name": "copy-tftp-load",
+      "pattern": "^copy\\s+tftp:(?:\\/\\/|\\/)?(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})\\/(?<file>\\S+)\\s+run(?:ning-config)?$",
+      "mode": [
+        "privileged",
+        "user"
+      ],
+      "handler": "cmdCopyTftpLoad",
+      "help": "Muat config dari TFTP server ke running-config",
+      "group": "Utility (IOS)",
+      "deviceTypes": [
+        "router",
+        "switch",
+        "pc"
+      ],
+      "usage": "copy tftp://<ip>/<file> running-config"
+    },
+    {
+      "name": "ip-domain-name",
+      "pattern": "^ip\\s+domain(?:[- ]name)?\\s+(?<domain>\\S+)$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdIpDomainName",
+      "help": "Set domain name (prasyarat SSH)",
+      "group": "Global Config",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "ip domain name <domain>"
+    },
+    {
+      "name": "crypto-key",
+      "pattern": "^crypto\\s+key\\s+generate\\s+rsa(?:\\s+modulus\\s+(?<mod>\\d{3,4}))?$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdCryptoKey",
+      "help": "Generate kunci RSA utk SSH",
+      "group": "Global Config",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "crypto key generate rsa modulus 1024"
+    },
+    {
+      "name": "show-ip-ssh",
+      "pattern": "^sh(?:ow)?\\s+ip\\s+ssh$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showIpSsh",
+      "help": "Status SSH server",
+      "group": "Show",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "show ip ssh"
+    },
+    {
+      "name": "ntp-server",
+      "pattern": "^ntp\\s+server\\s+(?<ip>\\d{1,3}(?:\\.\\d{1,3}){0,3})$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNtpServer",
+      "help": "Sinkron waktu ke NTP server",
+      "group": "Global Config",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "ntp server <ip>"
+    },
+    {
+      "name": "no-ntp-server",
+      "pattern": "^no\\s+ntp\\s+server.*$",
+      "mode": [
+        "global-config"
+      ],
+      "handler": "cmdNoNtpServer",
+      "help": "Hapus NTP server",
+      "group": "Global Config",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "no ntp server"
+    },
+    {
+      "name": "show-ntp",
+      "pattern": "^sh(?:ow)?\\s+ntp\\s+(?:status|associations)?$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "showNtp",
+      "help": "Status sinkronisasi NTP",
+      "group": "Show",
+      "deviceTypes": [
+        "router",
+        "switch"
+      ],
+      "usage": "show ntp status"
+    },
+    {
+      "name": "service-ftp-toggle",
+      "pattern": "^service\\s+ftp\\s+(?<act>on|off)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceFtpToggle",
+      "help": "Hidupkan/matikan FTP server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service ftp <on|off>"
+    },
+    {
+      "name": "service-ntp-toggle",
+      "pattern": "^service\\s+ntp\\s+(?<act>on|off)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdServiceNtpToggle",
+      "help": "Hidupkan/matikan NTP server",
+      "group": "Server Service",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "service ntp <on|off>"
+    },
+    {
+      "name": "ssh",
+      "pattern": "^ssh\\s+(?<target>\\S+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdSsh",
+      "help": "Sesi SSH ke router/switch (keluar: exit/quit)",
+      "group": "Utility (PC)",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "ssh <ip|nama>"
+    },
+    {
+      "name": "ftp",
+      "pattern": "^ftp\\s+(?<target>\\S+)$",
+      "mode": [
+        "user",
+        "privileged"
+      ],
+      "handler": "cmdFtp",
+      "help": "Sesi FTP ke server (perintah: ls, get <file>, bye)",
+      "group": "Utility (PC)",
+      "deviceTypes": [
+        "pc"
+      ],
+      "usage": "ftp <ip|nama>"
+    }
+  ]
+}

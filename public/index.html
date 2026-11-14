@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="theme-color" content="#050a08" />
+  <title>NetQuest — Cisco CLI Educational Game</title>
+  <link rel="stylesheet" href="/vendor/xterm.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand">
+      <span class="logo">&gt;_</span>
+      <span class="name">NetQuest</span>
+      <span class="tagline">Cisco IOS CLI Simulator</span>
+    </div>
+    <div class="status">
+      <span id="conn-status" class="badge badge-off">◉ tersambung?</span>
+      <span id="xp-badge" class="badge badge-xp" title="Total XP">XP 0</span>
+      <span id="lab-badge" hidden title="Virtual Lab Pribadi aktif — kanvas milikmu, quest utama dijeda">🧪 LAB PRIBADI</span>
+      <button id="btn-reset" class="btn btn-ghost" title="Reset lab ke kondisi awal (semua quest diulang)">↺ Reset</button>
+      <button id="btn-quest-toggle" class="btn btn-ghost" title="Buka/tutup panel quest">Quests (3)</button>
+    </div>
+  </header>
+
+  <main id="layout">
+    <!-- TAB 1: topologi -->
+    <section id="topo-panel" class="tab-panel is-active">
+      <div class="panel-header">
+        <span class="panel-title">TOPOLOGI</span>
+        <span class="spacer"></span>
+        <span class="panel-hint">Klik perangkat untuk membuka konsol CLI</span>
+      </div>
+      <div id="network"></div>
+      <div id="legend"></div>
+    </section>
+
+    <!-- TAB 2: terminal -->
+    <section id="term-panel" class="tab-panel">
+      <div class="panel-header">
+        <img id="term-device-icon" class="term-device-icon" alt="" hidden />
+        <span class="panel-title">CONSOLE <span id="term-device">— pilih perangkat</span></span>
+        <span class="spacer"></span>
+        <button id="btn-pcap" class="btn btn-ghost" title="Unduh capture .pcap (Wireshark)">⬇ pcap</button>
+        <button id="btn-term-fullscreen" class="btn btn-ghost" title="Fullscreen terminal">⛶</button>
+        <button id="btn-term-clear" class="btn btn-ghost" title="Bersihkan layar">✕</button>
+      </div>
+      <div id="terminal"></div>
+      <div id="quickkeys" aria-label="Tombol cepat">
+        <button data-insert="?">?</button>
+        <button data-insert="enable">en</button>
+        <button data-insert="conf t">conf t</button>
+        <button data-insert="end">end</button>
+        <button data-insert="exit">exit</button>
+        <button data-insert="no shutdown">no shut</button>
+        <button data-insert="show ip interface brief">sh ip int br</button>
+        <button data-insert="show ip route">sh ip route</button>
+        <button data-insert="ping ">ping</button>
+        <button data-insert="ipconfig">ipconfig</button>
+        <button data-insert="lab ?" title="Virtual Lab Pribadi: bantuan">🧪 lab</button>
+        <button data-ctrl="z" title="Ctrl+Z = end">^Z</button>
+        <button data-ctrl="c" title="Ctrl+C = batal">^C</button>
+      </div>
+      <div id="term-help">Enter kirim • ↑/↓ riwayat • Ctrl+C batal baris • Ctrl+Z = end • ketik <b>?</b> untuk bantuan</div>
+    </section>
+
+    <!-- TAB 3: quest board -->
+    <section id="quest-panel" class="tab-panel collapsed">
+      <div class="quest-header">
+        <span class="panel-title">QUEST BOARD</span>
+        <button id="btn-quest-collapse" class="btn btn-ghost" title="Ciutkan">▾</button>
+      </div>
+      <div id="quest-list" class="quest-list"></div>
+    </section>
+  </main>
+
+  <!-- Tab bar mobile (fixed bawah) -->
+  <nav id="tabbar" aria-label="Navigasi utama">
+    <button class="tab-btn active" data-tab="topo-panel">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <circle cx="5" cy="6" r="2.4"/><circle cx="19" cy="6" r="2.4"/><circle cx="12" cy="18" r="2.4"/>
+        <path d="M6.6 7.7 L10.4 16.3 M17.4 7.7 L13.6 16.3 M7.4 6 H16.6" stroke="currentColor" stroke-width="1.7" fill="none"/>
+      </svg>
+      <span>Topologi</span>
+    </button>
+    <button class="tab-btn" data-tab="term-panel">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M6.5 9 l4 3 -4 3 M12.5 15.5 H17.5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Konsol</span>
+    </button>
+    <button class="tab-btn" data-tab="quest-panel">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <rect x="5" y="3.5" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M9 3.5 V2.8 H15 V3.5" stroke="currentColor" stroke-width="1.7" fill="none"/>
+        <path d="M8.5 11 l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Quest <b id="tab-quest-count">0/3</b></span>
+    </button>
+  </nav>
+
+  <div id="toast-container"></div>
+
+  <script src="/vendor/vis-network.min.js"></script>
+  <script src="/vendor/xterm.js"></script>
+  <script src="/vendor/xterm-addon-fit.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
